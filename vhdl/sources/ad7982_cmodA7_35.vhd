@@ -1,46 +1,8 @@
 ----------------------------------------------------------------------------
---	GPIO_Demo.vhd -- Nexys4DDR GPIO/UART Demonstration Project
+--	ad7982_cmodA7_35.vhd -- 3Utransat UART Demonstration Project
 ----------------------------------------------------------------------------
--- Author:  Samuel Lowe Adapted from Sam Bobrowicz
---          Copyright 2013 Digilent, Inc.
-----------------------------------------------------------------------------
---
-----------------------------------------------------------------------------
---	The GPIO/UART Demo project demonstrates a simple usage of the Nexys4DDR's 
---  GPIO and UART. The behavior is as follows:
---
---	      *The 16 User LEDs are tied to the 16 User Switches. While the center
---			 User button is pressed, the LEDs are instead tied to GND
---	      *The 7-Segment display counts from 0 to 9 on each of its 8
---        digits. This count is reset when the center button is pressed.
---        Also, single anodes of the 7-Segment display are blanked by
---	       holding BTNU, BTNL, BTND, or BTNR. Holding the center button 
---        blanks all the 7-Segment anodes.
---       *An introduction message is sent across the UART when the device
---        is finished being configured, and after the center User button
---        is pressed.
---       *A message is sent over UART whenever BTNU, BTNL, BTND, or BTNR is
---        pressed.
---       *The Tri-Color LEDs cycle through several colors in a ~4 second loop
---       *Data from the microphone is collected and transmitted over the mono
---        audio out port.
---       *Note that the center user button behaves as a user reset button
---        and is referred to as such in the code comments below
---        
---	All UART communication can be captured by attaching the UART port to a
--- computer running a Terminal program with 9600 Baud Rate, 8 data bits, no 
--- parity, and 1 stop bit.																
-----------------------------------------------------------------------------
---
-----------------------------------------------------------------------------
--- Revision History:
---  08/08/2011(SamB): Created using Xilinx Tools 13.2
---  08/27/2013(MarshallW): Modified for the Nexys4 with Xilinx ISE 14.4\
---  		--added RGB and microphone
---  12/10/2014(SamB): Ported to Nexys4DDR and updated to Vivado 2014.4
---  05/24/2016(SamL): Ported to Cmod A7 and updated to Vivado 2015.4
---          --dimmed RGBLED and added clk_wiz_o
-----------------------------------------------------------------------------
+-- Author:  Bernard BERTRND
+--          Copyright 2023 IRAP, Inc.
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -102,11 +64,7 @@ architecture Behavioral of ad7982_cmodA7_35 is
     --from being interpreted as multiple button presses.
 
     --clock signal
-    signal CLK25   : std_logic;
-    signal CLK25_i : std_logic;
-    signal CLK100  : std_logic;
-
-    signal unsigned_cnt_25mhz : unsigned(1 downto 0);
+    signal CLK25 : std_logic;
 
     --signal clkRst : std_logic;
 
@@ -132,9 +90,9 @@ architecture Behavioral of ad7982_cmodA7_35 is
     signal UART_Tx_Din       : unsigned(7 downto 0);
     signal Baud_Cnt_Offset   : signed(5 downto 0);
     signal start_pattern     : std_logic;
-    signal pattern           : unsigned(7 downto 0);
-    signal UART_Tx_Din_std   : std_logic_vector(7 downto 0);
-    signal not_send_data     : std_logic;
+
+    signal UART_Tx_Din_std : std_logic_vector(7 downto 0);
+    signal not_send_data   : std_logic;
 
 begin
 
@@ -149,40 +107,11 @@ begin
             reset    => '0'
         );
 
-    --    --------------------------------------------------
-    --    -- clock
-    --    --------------------------------------------------
-    --    process(i_Rst_n, CLK100)
-    --    begin
-    --        if i_Rst_n = '0' then
-    --
-    --            CLK25_i            <= '0';
-    --            unsigned_cnt_25mhz <= (others => '0');
-    --
-    --        elsif rising_edge(CLK100) then
-    --
-    --            unsigned_cnt_25mhz <= unsigned_cnt_25mhz + to_unsigned(1, 2);
-    --
-    --            if unsigned_cnt_25mhz = to_unsigned(1, 2) then
-    --
-    --                CLK25_i            <= not CLK25_i;
-    --                unsigned_cnt_25mhz <= (others => '0');
-    --
-    --            end if;
-    --
-    --        end if;
-    --    end process;
-
-    --    BUFG_inst : BUFG
-    --        port map(
-    --            O => CLK25,                 -- 1-bit output: Clock output
-    --            I => CLK25_i                -- 1-bit input: Clock input
-    --        );
-
     ----------------------------------------------------------
     ------                LED Control                  -------
     ----------------------------------------------------------
-
+    LED(0) <= BTN(0);
+    LED(1) <= BTN(1);
     ----------------------------------------------------------
     ------                reset                          -------
     ----------------------------------------------------------    
@@ -250,38 +179,6 @@ begin
             o_RS422_Tx        => o_RS422_Tx
         );
 
-    --        --------------------------------------------------
-    --        -- rx -> tx
-    --        --------------------------------------------------
-    --        process(i_Rst_n, CLK25)
-    --        begin
-    --            if i_Rst_n = '0' then
-    --                UART_Tx_Din       <= (others => '0');
-    --                UART_Tx_Send_Data <= '0';
-    --            elsif rising_edge(CLK25) then
-    --                if UART_Rx_Ready = '1' and UART_Tx_Busy = '0' then
-    --                    UART_Tx_Din       <= UART_Rx_Dout;
-    --                    UART_Tx_Send_Data <= '1';
-    --                else
-    --                    UART_Tx_Send_Data <= '0';
-    --                end if;
-    --            end if;
-    --        end process;
-
-    LED(0) <= BTN(0);
-    LED(1) <= BTN(1);
-
-    --        process(i_Rst_n, CLK25)
-    --        begin
-    --            if i_Rst_n = '0' then
-    --                LED(0) <= '0';
-    --                LED(1) <= '0';
-    --            elsif rising_edge(CLK25) then
-    --                LED(0) <= start_pattern;
-    --                LED(1) <= UART_Tx_Send_Data;
-    --            end if;
-    --        end process;
-
     --------------------------------------------------
     -- ila
     --------------------------------------------------
@@ -313,7 +210,6 @@ begin
     begin
         if i_Rst_n = '0' then
             UART_Tx_Din       <= (others => '0');
-            pattern           <= (others => '0');
             UART_Tx_Send_Data <= '0';
             not_send_data     <= '0';
         elsif rising_edge(CLK25) then
