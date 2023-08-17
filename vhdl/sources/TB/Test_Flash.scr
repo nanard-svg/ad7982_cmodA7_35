@@ -1,0 +1,30 @@
+######################################################
+# Commands available
+# Write .scr file and execute Script2Bytes.py
+######################################################
+# WaitMs(int:Milliseconde)
+
+
+# init FLASH
+Wait_us(100)
+
+# Test pattern for DU_ADC
+Send_CHANGE_PARAM(x0018,x0003)
+Wait_us(2000)
+
+Send_CHANGE_PARAM(x0021,x1235)
+Wait_us(2000)
+
+Send_CHANGE_PARAM(x0021,x1234)
+Wait_us(2000)
+
+Send_READ_PARAM(x0021 0x0000)
+Wait_us(2000)
+
+# Select DU_ADC 1 & 2
+Send_HK_REQUEST(x00,x00,x00,x00,x00,x00)
+Wait_us(2000)
+
+
+
+
