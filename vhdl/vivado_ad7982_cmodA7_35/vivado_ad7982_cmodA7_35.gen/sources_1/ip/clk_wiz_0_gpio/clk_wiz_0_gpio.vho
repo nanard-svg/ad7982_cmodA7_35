@@ -55,7 +55,8 @@
 --  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 --   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 ------------------------------------------------------------------------------
--- clk_out1__24.00000______0.000______50.0______600.395____693.818
+-- clk_out1__24.00000______0.000______50.0______607.299____655.043
+-- clk_out2__66.00000______0.000______50.0______519.560____655.043
 --
 ------------------------------------------------------------------------------
 -- Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -70,6 +71,7 @@ port
  (-- Clock in ports
   -- Clock out ports
   clk_out1          : out    std_logic;
+  clk_out2          : out    std_logic;
   -- Status and control signals
   reset             : in     std_logic;
   clk_in1           : in     std_logic
@@ -84,6 +86,7 @@ your_instance_name : clk_wiz_0_gpio
    port map ( 
   -- Clock out ports  
    clk_out1 => clk_out1,
+   clk_out2 => clk_out2,
   -- Status and control signals                
    reset => reset,
    -- Clock in ports

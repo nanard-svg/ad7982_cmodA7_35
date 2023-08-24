@@ -87,12 +87,23 @@ architecture Behavioral of ad7982_cmodA7_35 is
 
     signal UART_Tx_Busy      : std_logic;
     signal UART_Tx_Send_Data : std_logic;
-    signal UART_Tx_Din       : unsigned(7 downto 0);
+    signal UART_Tx_Din       : std_logic_vector(7 downto 0);
     signal Baud_Cnt_Offset   : signed(5 downto 0);
-    signal start_pattern     : std_logic;
 
-    signal UART_Tx_Din_std : std_logic_vector(7 downto 0);
-    signal not_send_data   : std_logic;
+
+
+    
+    signal rst             : std_logic;
+    signal CLK66           : STD_LOGIC;
+    --fifo in
+    signal din : STD_LOGIC_VECTOR ( 15 downto 0 );
+    signal wr_en : STD_LOGIC;
+    signal full : STD_LOGIC;
+    --fifo out
+    signal rd_en : std_logic;
+    signal dout : std_logic_vector(15 downto 0);
+    signal empty : std_logic;
+    signal valid : std_logic;
 
 begin
 
@@ -100,11 +111,14 @@ begin
     ------                Clocking                  -------
     ----------------------------------------------------------
 
-    inst_clk : clk_wiz_0_gpio
+    inst_clk : entity work.clk_wiz_0_gpio
         port map(
-            clk_in1  => CLK,
             clk_out1 => CLK25,
-            reset    => '0'
+            clk_out2 => CLK66,
+            reset    => '0',
+            clk_in1  => CLK
+            
+            
         );
 
     ----------------------------------------------------------
@@ -125,7 +139,7 @@ begin
     --to trigger UART messages
 
     --Debounces btn signals 
-    Inst_btn_debounce : debouncer
+    Inst_btn_debounce : entity work.debouncer
         generic map(
             DEBNC_CLOCKS => (2 ** 16),
             PORT_WIDTH   => 2)
@@ -139,7 +153,7 @@ begin
     ------            RGB LED Control                  -------
     ----------------------------------------------------------
 
-    RGB_Core1 : RGB_controller
+    RGB_Core1 : entity work.RGB_controller
         port map(
             GCLK           => CLK25,
             RGB_LED_1_O(0) => RGB0_Green,
@@ -172,7 +186,7 @@ begin
             o_Tx_Start_Bit    => open,
             o_Tx_Next_Bit     => open,
             i_Tx_Send_Data    => UART_Tx_Send_Data,
-            i_Tx_Din          => UART_Tx_Din_std,
+            i_Tx_Din          => UART_Tx_Din,
             o_Tx_Busy         => UART_Tx_Busy,
             -- RS-422
             i_RS422_Rx        => i_RS422_Rx,
@@ -189,43 +203,54 @@ begin
             probe1 => '0' & UART_Rx_Ready
         );
 
+    rst <= not i_Rst_n;
     --------------------------------------------------
-    -- detect start
+    -- fifo
     --------------------------------------------------
-    process(i_Rst_n, CLK25)
-    begin
-        if i_Rst_n = '0' then
-            start_pattern <= '0';
-        elsif rising_edge(CLK25) then
-            if UART_Rx_Ready = '1' and UART_Rx_Dout = x"53" then
-                start_pattern <= '1';
-            end if;
-        end if;
-    end process;
+
+    inst_fifo : entity work.fifo
+        port map(
+            rst         => rst,
+            wr_clk      => CLK66,
+            rd_clk      => CLK25,
+            din         => din,
+            wr_en       => wr_en,
+            rd_en       => rd_en,
+            dout        => dout,
+            full        => full,
+            empty       => empty,
+            valid       => valid,
+            wr_rst_busy => open,
+            rd_rst_busy => open
+        );
 
     --------------------------------------------------
-    -- pattern
+    -- fsm acq
     --------------------------------------------------
-    process(i_Rst_n, CLK25)
-    begin
-        if i_Rst_n = '0' then
-            UART_Tx_Din       <= (others => '0');
-            UART_Tx_Send_Data <= '0';
-            not_send_data     <= '0';
-        elsif rising_edge(CLK25) then
-            if UART_Tx_Busy = '0' and start_pattern = '1' and not_send_data = '0' then
-                UART_Tx_Din       <= UART_Tx_Din + To_unsigned(1, 8);
-                UART_Tx_Send_Data <= '1';
-                not_send_data     <= '1';
-            else
-                UART_Tx_Send_Data <= '0';
-                if UART_Tx_Busy = '0' then
-                    not_send_data <= '0';
-                end if;
-            end if;
-        end if;
-    end process;
+    inst_fsm_acq : entity work.fsm_acq
+        port map(
+            clk            => CLK66,
+            rst            => rst,
+            o_din          => din,
+            o_wr_en        => wr_en,
+            i_full         => full,
+            i_UART_Rx_Dout => UART_Rx_Dout
+        );
 
-    UART_Tx_Din_std <= std_logic_vector(UART_Tx_Din);
+    --------------------------------------------------
+    -- fsm tx
+    --------------------------------------------------
+    inst_fsm_tx : entity work.fsm_tx
+        port map(
+            clk                 => CLK25,
+            rst                 => rst,
+            o_rd_en             => rd_en,
+            i_dout              => dout,
+            i_empty             => empty,
+            i_valid             => valid,
+            o_UART_Tx_Din       => UART_Tx_Din,
+            o_UART_Tx_Send_Data => UART_Tx_Send_Data,
+            i_UART_Tx_Busy      => UART_Tx_Busy
+        );
 
 end Behavioral;

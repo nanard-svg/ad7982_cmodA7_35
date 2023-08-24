@@ -1,6 +1,4 @@
-
--- 
--- (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2023 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -46,50 +44,55 @@
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 -- PART OF THIS FILE AT ALL TIMES.
 -- 
-------------------------------------------------------------------------------
--- User entered comments
-------------------------------------------------------------------------------
--- None
---
-------------------------------------------------------------------------------
---  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
---   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
-------------------------------------------------------------------------------
--- clk_out1__24.00000______0.000______50.0______607.299____655.043
--- clk_out2__66.00000______0.000______50.0______519.560____655.043
---
-------------------------------------------------------------------------------
--- Input Clock   Freq (MHz)    Input Jitter (UI)
-------------------------------------------------------------------------------
--- __primary___________12.00____________0.010
+-- DO NOT MODIFY THIS FILE.
+-- IP VLNV: xilinx.com:ip:fifo_generator:13.2
+-- IP Revision: 7
 
+-- The following code must appear in the VHDL architecture header.
 
--- The following code must appear in the VHDL architecture header:
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
-component clk_wiz_0_gpio
-port
- (-- Clock in ports
-  -- Clock out ports
-  clk_out1          : out    std_logic;
-  clk_out2          : out    std_logic;
-  -- Status and control signals
-  reset             : in     std_logic;
-  clk_in1           : in     std_logic
- );
-end component;
-
+COMPONENT fifo
+  PORT (
+    rst : IN STD_LOGIC;
+    wr_clk : IN STD_LOGIC;
+    rd_clk : IN STD_LOGIC;
+    din : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+    wr_en : IN STD_LOGIC;
+    rd_en : IN STD_LOGIC;
+    dout : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    full : OUT STD_LOGIC;
+    empty : OUT STD_LOGIC;
+    valid : OUT STD_LOGIC;
+    wr_rst_busy : OUT STD_LOGIC;
+    rd_rst_busy : OUT STD_LOGIC 
+  );
+END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
+
 -- The following code must appear in the VHDL architecture
 -- body. Substitute your own instance name and net names.
+
 ------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
-your_instance_name : clk_wiz_0_gpio
-   port map ( 
-  -- Clock out ports  
-   clk_out1 => clk_out1,
-   clk_out2 => clk_out2,
-  -- Status and control signals                
-   reset => reset,
-   -- Clock in ports
-   clk_in1 => clk_in1
- );
--- INST_TAG_END ------ End INSTANTIATION Template ------------
+your_instance_name : fifo
+  PORT MAP (
+    rst => rst,
+    wr_clk => wr_clk,
+    rd_clk => rd_clk,
+    din => din,
+    wr_en => wr_en,
+    rd_en => rd_en,
+    dout => dout,
+    full => full,
+    empty => empty,
+    valid => valid,
+    wr_rst_busy => wr_rst_busy,
+    rd_rst_busy => rd_rst_busy
+  );
+-- INST_TAG_END ------ End INSTANTIATION Template ---------
+
+-- You must compile the wrapper file fifo.vhd when simulating
+-- the core, fifo. When compiling the wrapper file, be sure to
+-- reference the VHDL simulation library.
+
+
+

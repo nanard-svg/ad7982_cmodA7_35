@@ -5,7 +5,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-decimal_theo=1
+toggel = 0
 decimal_list=[]
 
 ser = serial.Serial (port="COM10", baudrate=115200,
@@ -22,26 +22,29 @@ ser = serial.Serial (port="COM10", baudrate=115200,
 
 ser.write(b'S') #start data counter inside fpga
 
-for y in range(1000):
+for y in range(655):
     for i in range(100):
         x = ser.read(1)
         hexadecimal = binascii.hexlify(x)
         decimal = int(hexadecimal, 16)
-        if decimal_theo != decimal: # control data from fpga
-            print('error')
-            print(decimal)
-            print(decimal_theo)
-
-        if decimal_theo == 255:
-            decimal_theo = 0
+        if toggel == 0 :
+            lsb = decimal
+            print(bin(lsb))
+            toggel = 1
         else:
-            decimal_theo += 1
+            msb = decimal
+            print(bin(msb))
 
-        decimal_list.append(decimal)
+            #data = bin(bin(msb) | bin(lsb))
+
+            print("data:{}".format(msb))
+            toggel = 0
+
+            decimal_list.append(msb)
 
 
 
-#print(decimal_list)
+print(decimal_list)
 plt.plot(decimal_list)
 plt.show()
 

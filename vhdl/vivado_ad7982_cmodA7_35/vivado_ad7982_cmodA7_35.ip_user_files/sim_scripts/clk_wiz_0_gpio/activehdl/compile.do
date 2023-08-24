@@ -9,6 +9,7 @@ vmap xil_defaultlib activehdl/xil_defaultlib
 
 vlog -work xpm  -sv2k12 "+incdir+../../../ipstatic" \
 "C:/Vivado/2022.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv" \
+"C:/Vivado/2022.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv" \
 
 vcom -work xpm -93  \
 "C:/Vivado/2022.2/data/ip/xpm/xpm_VCOMP.vhd" \

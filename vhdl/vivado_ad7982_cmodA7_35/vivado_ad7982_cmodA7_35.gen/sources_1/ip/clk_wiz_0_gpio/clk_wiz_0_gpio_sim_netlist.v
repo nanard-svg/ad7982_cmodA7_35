@@ -1,7 +1,7 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2022.2 (win64) Build 3671981 Fri Oct 14 05:00:03 MDT 2022
-// Date        : Thu Aug 17 16:10:34 2023
+// Date        : Tue Aug 22 13:30:27 2023
 // Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
 //               c:/3u/ad7982_cmodA7_35/vhdl/vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.gen/sources_1/ip/clk_wiz_0_gpio/clk_wiz_0_gpio_sim_netlist.v
@@ -15,27 +15,33 @@
 (* NotValidForBitStream *)
 module clk_wiz_0_gpio
    (clk_out1,
+    clk_out2,
     reset,
     clk_in1);
   output clk_out1;
+  output clk_out2;
   input reset;
   input clk_in1;
 
   (* IBUF_LOW_PWR *) wire clk_in1;
   wire clk_out1;
+  wire clk_out2;
   wire reset;
 
   clk_wiz_0_gpio_clk_wiz inst
        (.clk_in1(clk_in1),
         .clk_out1(clk_out1),
+        .clk_out2(clk_out2),
         .reset(reset));
 endmodule
 
 module clk_wiz_0_gpio_clk_wiz
    (clk_out1,
+    clk_out2,
     reset,
     clk_in1);
   output clk_out1;
+  output clk_out2;
   input reset;
   input clk_in1;
 
@@ -43,6 +49,8 @@ module clk_wiz_0_gpio_clk_wiz
   wire clk_in1_clk_wiz_0_gpio;
   wire clk_out1;
   wire clk_out1_clk_wiz_0_gpio;
+  wire clk_out2;
+  wire clk_out2_clk_wiz_0_gpio;
   wire clkfbout_buf_clk_wiz_0_gpio;
   wire clkfbout_clk_wiz_0_gpio;
   wire reset;
@@ -50,7 +58,6 @@ module clk_wiz_0_gpio_clk_wiz
   wire NLW_mmcm_adv_inst_CLKFBSTOPPED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT0B_UNCONNECTED;
-  wire NLW_mmcm_adv_inst_CLKOUT1_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT1B_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT2_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT2B_UNCONNECTED;
@@ -83,18 +90,22 @@ module clk_wiz_0_gpio_clk_wiz
        (.I(clk_out1_clk_wiz_0_gpio),
         .O(clk_out1));
   (* BOX_TYPE = "PRIMITIVE" *) 
+  BUFG clkout2_buf
+       (.I(clk_out2_clk_wiz_0_gpio),
+        .O(clk_out2));
+  (* BOX_TYPE = "PRIMITIVE" *) 
   MMCME2_ADV #(
     .BANDWIDTH("OPTIMIZED"),
-    .CLKFBOUT_MULT_F(64.000000),
+    .CLKFBOUT_MULT_F(60.500000),
     .CLKFBOUT_PHASE(0.000000),
     .CLKFBOUT_USE_FINE_PS("FALSE"),
     .CLKIN1_PERIOD(83.333000),
     .CLKIN2_PERIOD(0.000000),
-    .CLKOUT0_DIVIDE_F(32.000000),
+    .CLKOUT0_DIVIDE_F(30.250000),
     .CLKOUT0_DUTY_CYCLE(0.500000),
     .CLKOUT0_PHASE(0.000000),
     .CLKOUT0_USE_FINE_PS("FALSE"),
-    .CLKOUT1_DIVIDE(1),
+    .CLKOUT1_DIVIDE(11),
     .CLKOUT1_DUTY_CYCLE(0.500000),
     .CLKOUT1_PHASE(0.000000),
     .CLKOUT1_USE_FINE_PS("FALSE"),
@@ -143,7 +154,7 @@ module clk_wiz_0_gpio_clk_wiz
         .CLKINSTOPPED(NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED),
         .CLKOUT0(clk_out1_clk_wiz_0_gpio),
         .CLKOUT0B(NLW_mmcm_adv_inst_CLKOUT0B_UNCONNECTED),
-        .CLKOUT1(NLW_mmcm_adv_inst_CLKOUT1_UNCONNECTED),
+        .CLKOUT1(clk_out2_clk_wiz_0_gpio),
         .CLKOUT1B(NLW_mmcm_adv_inst_CLKOUT1B_UNCONNECTED),
         .CLKOUT2(NLW_mmcm_adv_inst_CLKOUT2_UNCONNECTED),
         .CLKOUT2B(NLW_mmcm_adv_inst_CLKOUT2B_UNCONNECTED),

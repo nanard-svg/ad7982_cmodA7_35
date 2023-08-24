@@ -3,6 +3,8 @@
   <Mappings Location="Common Libraries/IEEE" Library="ieee"/>
   <Mappings Location="Common Libraries/IEEE Synopsys" Library="ieee"/>
   <Mappings Location="Common Libraries" Library="not mapped"/>
+  <Mappings Location="vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.ip_user_files/ip/fifo" Library="not mapped"/>
   <Mappings Location="Common Libraries/STD" Library="std"/>
   <Mappings Location="" Library="work"/>
+  <Mappings Location="vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.ip_user_files/ip/fifo/fifo_stub.vhdl" Library="work"/>
 </com.sigasi.hdt.shared.librarymapping.model:LibraryMappings>
