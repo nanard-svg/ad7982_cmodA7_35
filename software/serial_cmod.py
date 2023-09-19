@@ -5,8 +5,22 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-toggel = 0
+toggle = 0
 decimal_list=[]
+msb_list=[]
+lsb_list=[]
+counter=0
+
+def twos_complement(val, nbits):
+    """Compute the 2's complement of int value val"""
+    if val < 0:
+        val = (1 << nbits) + val
+    else:
+        if (val & (1 << (nbits - 1))) != 0:
+            # If sign bit is set.
+            # compute negative value.
+            val = val - (1 << nbits)
+    return val
 
 ser = serial.Serial (port="COM10", baudrate=115200,
                       bytesize=serial.EIGHTBITS, parity=serial.PARITY_ODD,
@@ -26,25 +40,29 @@ for y in range(655):
     for i in range(100):
         x = ser.read(1)
         hexadecimal = binascii.hexlify(x)
+        #print(type(hexadecimal))
         decimal = int(hexadecimal, 16)
-        if toggel == 0 :
+        #print(type(decimal))
+        if toggle == 0 :
             lsb = decimal
-            print(bin(lsb))
-            toggel = 1
+            toggle = 1
         else:
             msb = decimal
-            print(bin(msb))
-
             #data = bin(bin(msb) | bin(lsb))
+            toggle = 0
+            res_decimal = msb*((2**8))+lsb
+            print("res_decimal:{}".format(res_decimal))
+            #res_bin = ''.join(format(i, '08b') for i in bytearray(str(res_decimal), encoding ='utf-8'))
 
-            print("data:{}".format(msb))
-            toggel = 0
+            res_twos_complement = twos_complement(res_decimal,16)
+            print("res_twos_complement:{}".format(res_twos_complement))
+            counter = counter+1
+            #print("counter:{},res:{}".format(counter,res_decimal))
+            #print(res_bin)
+            decimal_list.append(res_twos_complement)
+            msb_list.append(msb)
+            lsb_list.append(lsb)
 
-            decimal_list.append(msb)
-
-
-
-print(decimal_list)
 plt.plot(decimal_list)
 plt.show()
 
