@@ -33,11 +33,10 @@ ser = serial.Serial (port="COM10", baudrate=115200,
                       inter_byte_timeout=None)
 
 
-
+ser.write(b'0')
 ser.write(b'S') #start data counter inside fpga
 
-for y in range(655):
-    for i in range(100):
+for y in range(65536):
         x = ser.read(1)
         hexadecimal = binascii.hexlify(x)
         #print(type(hexadecimal))
@@ -51,7 +50,7 @@ for y in range(655):
             #data = bin(bin(msb) | bin(lsb))
             toggle = 0
             res_decimal = msb*((2**8))+lsb
-            print("res_decimal:{}".format(res_decimal))
+            #print("res_decimal:{}".format(res_decimal))
             #res_bin = ''.join(format(i, '08b') for i in bytearray(str(res_decimal), encoding ='utf-8'))
 
             res_twos_complement = twos_complement(res_decimal,16)
@@ -65,5 +64,7 @@ for y in range(655):
 
 plt.plot(decimal_list)
 plt.show()
+
+ser.write(b'0')
 
 ser.close()

@@ -34,11 +34,11 @@ begin
             state <= wait_start;
 
             o_wr_en            <= '0';
-            pattern_data       <= To_signed(16384,16);
+            pattern_data       <= To_signed(16384, 16);
             compter_delay      <= (others => '0');
-            i_UART_Rx_Dout_ff0 <= (others => '0');
-            i_UART_Rx_Dout_ff1 <= (others => '0');
-            i_UART_Rx_Dout_ff2 <= (others => '0');
+            i_UART_Rx_Dout_ff0 <= x"30";
+            i_UART_Rx_Dout_ff1 <= x"30";
+            i_UART_Rx_Dout_ff2 <= x"30";
 
         elsif rising_edge(clk) then
 
@@ -52,7 +52,7 @@ begin
 
                 when wait_start =>
 
-                    if i_UART_Rx_Dout_ff1 = x"53" and i_UART_Rx_Dout_ff2 = x"00" then
+                    if i_UART_Rx_Dout_ff1 = x"53" and i_UART_Rx_Dout_ff2 = x"30" then
                         state <= wait_loop;
                     end if;
 
@@ -66,18 +66,28 @@ begin
 
                 when write_fifo =>
 
-                    pattern_data <= pattern_data + 1;
-                    o_wr_en      <= '1';
-                    state        <= wait_delay;
+                    if i_full = '0' then
+                        pattern_data <= pattern_data + 1;
+                        o_wr_en      <= '1';
+                        state        <= wait_delay;
+                    else
+                        state <= wait_start;
+                    end if;
 
                 when wait_delay =>
 
                     compter_delay <= compter_delay + 1;
 
-                    if To_integer(compter_delay) = 66 then
+                    if i_full = '1' then
+                        state         <= wait_start;
+                        compter_delay <= (others => '0');
+                    else
+                        if To_integer(compter_delay) = 66 and i_full = '0' then
                         state         <= wait_loop;
                         compter_delay <= (others => '0');
+                        end if;
                     end if;
+                    
 
             end case;
 
