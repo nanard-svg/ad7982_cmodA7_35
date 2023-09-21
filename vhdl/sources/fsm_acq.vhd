@@ -10,7 +10,6 @@ entity fsm_acq is
         --fifo
         o_din          : out std_logic_vector(15 downto 0);
         o_wr_en        : out std_logic;
-        i_full         : in  std_logic;
         --rx uart
         i_UART_Rx_Dout : in  std_logic_vector(7 downto 0)
     );
@@ -18,13 +17,14 @@ end entity fsm_acq;
 
 architecture RTL of fsm_acq is
 
-    type state_type is (wait_start, wait_loop, write_fifo, wait_delay);
-    signal state              : state_type;
-    signal i_UART_Rx_Dout_ff0 : std_logic_vector(7 downto 0);
-    signal i_UART_Rx_Dout_ff1 : std_logic_vector(7 downto 0);
-    signal pattern_data       : signed(15 downto 0);
-    signal compter_delay      : unsigned(15 downto 0);
-    signal i_UART_Rx_Dout_ff2 : std_logic_vector(7 downto 0);
+    type state_type is (wait_start, write_fifo, wait_delay);
+    signal state                : state_type;
+    signal i_UART_Rx_Dout_ff0   : std_logic_vector(7 downto 0);
+    signal i_UART_Rx_Dout_ff1   : std_logic_vector(7 downto 0);
+    signal pattern_data         : signed(15 downto 0);
+    signal pattern_data_counter : unsigned(15 downto 0);
+    signal compter_delay        : unsigned(15 downto 0);
+    signal i_UART_Rx_Dout_ff2   : std_logic_vector(7 downto 0);
 
 begin
 
@@ -33,12 +33,13 @@ begin
         if rst = '1' then
             state <= wait_start;
 
-            o_wr_en            <= '0';
-            pattern_data       <= To_signed(16384, 16);
-            compter_delay      <= (others => '0');
-            i_UART_Rx_Dout_ff0 <= x"30";
-            i_UART_Rx_Dout_ff1 <= x"30";
-            i_UART_Rx_Dout_ff2 <= x"30";
+            o_wr_en              <= '0';
+            pattern_data         <= To_signed(16384, 16);
+            compter_delay        <= (others => '0');
+            i_UART_Rx_Dout_ff0   <= x"30";
+            i_UART_Rx_Dout_ff1   <= x"30";
+            i_UART_Rx_Dout_ff2   <= x"30";
+            pattern_data_counter <= (others => '0');
 
         elsif rising_edge(clk) then
 
@@ -53,41 +54,30 @@ begin
                 when wait_start =>
 
                     if i_UART_Rx_Dout_ff1 = x"53" and i_UART_Rx_Dout_ff2 = x"30" then
-                        state <= wait_loop;
-                    end if;
-
-                when wait_loop =>
-
-                    if i_full = '0' then
                         state <= write_fifo;
-                    else
-                        state <= wait_start;
                     end if;
 
                 when write_fifo =>
 
-                    if i_full = '0' then
-                        pattern_data <= pattern_data + 1;
-                        o_wr_en      <= '1';
-                        state        <= wait_delay;
-                    else
-                        state <= wait_start;
-                    end if;
+                    pattern_data         <= pattern_data + 1;
+                    pattern_data_counter <= pattern_data_counter + 1;
+                    o_wr_en              <= '1';
+                    state                <= wait_delay;
 
                 when wait_delay =>
 
                     compter_delay <= compter_delay + 1;
 
-                    if i_full = '1' then
-                        state         <= wait_start;
-                        compter_delay <= (others => '0');
+                    if To_integer(pattern_data_counter) = 65500 then
+                        state                <= wait_start;
+                        pattern_data_counter <= (others => '0');
+                        compter_delay        <= (others => '0');
                     else
-                        if To_integer(compter_delay) = 66 and i_full = '0' then
-                        state         <= wait_loop;
-                        compter_delay <= (others => '0');
+                        if To_integer(compter_delay) = 66 then
+                            state         <= write_fifo;
+                            compter_delay <= (others => '0');
                         end if;
                     end if;
-                    
 
             end case;
 

@@ -217,7 +217,7 @@ begin
             wr_en       => wr_en,
             rd_en       => rd_en,
             dout        => dout,
-            full        => full,
+            full        => open,
             empty       => empty,
             valid       => valid,
             wr_rst_busy => open,
@@ -233,7 +233,6 @@ begin
             rst            => rst,
             o_din          => din,
             o_wr_en        => wr_en,
-            i_full         => full,
             i_UART_Rx_Dout => UART_Rx_Dout
         );
 

@@ -36,7 +36,7 @@ ser = serial.Serial (port="COM10", baudrate=115200,
 ser.write(b'0')
 ser.write(b'S') #start data counter inside fpga
 
-for y in range(65536):
+for y in range(131000):
         x = ser.read(1)
         hexadecimal = binascii.hexlify(x)
         #print(type(hexadecimal))
@@ -52,9 +52,9 @@ for y in range(65536):
             res_decimal = msb*((2**8))+lsb
             #print("res_decimal:{}".format(res_decimal))
             #res_bin = ''.join(format(i, '08b') for i in bytearray(str(res_decimal), encoding ='utf-8'))
-
-            res_twos_complement = twos_complement(res_decimal,16)
-            print("res_twos_complement:{}".format(res_twos_complement))
+            res_twos_complement = twos_complement(res_decimal, 16)
+            if y == 1 or y == 130999 :
+                print("res_twos_complement:{}".format(res_twos_complement))
             counter = counter+1
             #print("counter:{},res:{}".format(counter,res_decimal))
             #print(res_bin)
