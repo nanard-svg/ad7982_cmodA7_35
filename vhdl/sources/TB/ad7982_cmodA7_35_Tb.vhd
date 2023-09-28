@@ -35,7 +35,7 @@ architecture Simulation of ad7982_cmodA7_35_Tb is
 
     signal Board_Select    : std_logic;
     signal Baud_Cnt_Offset : signed(5 downto 0);
-	
+
     -----------------------------------------------------------------
     -- UART RS-422
     -----------------------------------------------------------------
@@ -46,6 +46,9 @@ architecture Simulation of ad7982_cmodA7_35_Tb is
     signal clk12MHz_Clock_Period : time      := 83 ns;
     signal clk12MHz              : std_logic := '0';
     signal BTN                   : STD_LOGIC_VECTOR(1 downto 0);
+    signal sck                   : std_logic;
+    signal cnv                   : std_logic;
+    signal sdo                   : std_logic;
 
 begin
 
@@ -69,7 +72,7 @@ begin
 
     --------------------------------------------------------
 
-    p_Gen_Lander_Clk : process                    -- 25 MHz
+    p_Gen_Lander_Clk : process          -- 25 MHz
     begin
         Lander_CLOCK <= '0';
         wait until HW_RESET_n = '1';
@@ -121,10 +124,10 @@ begin
     --
     ---------------------------------------------------------------------------------------------------------------------------------
 
-    Board_Select    <= '1';                       -- 0: FS, 1: FM
+    Board_Select    <= '1';             -- 0: FS, 1: FM
     Baud_Cnt_Offset <= to_signed(0 - 8, 6) when Board_Select = '1' else -- Used on DORN_FM (Weak Pullup)
-                       to_signed(0 - 21, 6);      -- Used on DORN_FS (Pulldown)	
-	
+                       to_signed(0 - 21, 6); -- Used on DORN_FS (Pulldown)	
+
     inst_GSE : entity work.GSE
         generic map(
             G_SYSTEM_PERIOD_NS      => C_SYSTEM_PERIOD_NS,
@@ -154,15 +157,25 @@ begin
             o_RS422_Tx => DORN_RS422_Tx,
             RGB0_Red   => open,
             RGB0_Green => open,
-            RGB0_Blue  => open
-            
-
-
+            RGB0_Blue  => open,
+            --adc
+            o_sck      => sck,
+            o_cnv      => cnv,
+            i_sdo      => sdo
         );
 
-        --            clk12MHz   => clk12MHz,
-        --            i_Rst_n    => i_Rst_n,
-        --            i_RS422_Rx => DORN_RS422_Rx,
-        --            o_RS422_Tx => DORN_RS422_Tx
+    ---------------------------------------------------------------------------------------------------------------------------------
+    --
+    -- AD7982_Emulators emul
+    --
+    ------------------------------------------------------------------------------------------------------
+
+    inst_AD7982_Emulators : entity work.AD7982_Emulators
+        port map(
+            i_Rst_n => i_Rst_n,
+            i_sck   => sck,
+            i_cnv   => cnv,
+            o_sdo   => sdo
+        );
 
 end architecture Simulation;

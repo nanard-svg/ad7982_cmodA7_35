@@ -1,7 +1,7 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2022.2 (win64) Build 3671981 Fri Oct 14 05:00:03 MDT 2022
-// Date        : Tue Sep 19 15:45:48 2023
+// Date        : Tue Sep 26 15:52:41 2023
 // Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
 //               c:/3u/ad7982_cmodA7_35/vhdl/vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.gen/sources_1/ip/clk_wiz_0_gpio/clk_wiz_0_gpio_sim_netlist.v
@@ -96,16 +96,16 @@ module clk_wiz_0_gpio_clk_wiz
   (* BOX_TYPE = "PRIMITIVE" *) 
   MMCME2_ADV #(
     .BANDWIDTH("OPTIMIZED"),
-    .CLKFBOUT_MULT_F(60.500000),
+    .CLKFBOUT_MULT_F(62.500000),
     .CLKFBOUT_PHASE(0.000000),
     .CLKFBOUT_USE_FINE_PS("FALSE"),
     .CLKIN1_PERIOD(83.333000),
     .CLKIN2_PERIOD(0.000000),
-    .CLKOUT0_DIVIDE_F(30.250000),
+    .CLKOUT0_DIVIDE_F(31.250000),
     .CLKOUT0_DUTY_CYCLE(0.500000),
     .CLKOUT0_PHASE(0.000000),
     .CLKOUT0_USE_FINE_PS("FALSE"),
-    .CLKOUT1_DIVIDE(11),
+    .CLKOUT1_DIVIDE(15),
     .CLKOUT1_DUTY_CYCLE(0.500000),
     .CLKOUT1_PHASE(0.000000),
     .CLKOUT1_USE_FINE_PS("FALSE"),

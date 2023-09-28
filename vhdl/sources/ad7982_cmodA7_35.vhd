@@ -22,12 +22,19 @@ entity ad7982_cmodA7_35 is
     Port(
         BTN        : in  STD_LOGIC_VECTOR(1 downto 0);
         CLK        : in  STD_LOGIC;
+        --led
         LED        : out STD_LOGIC_VECTOR(1 downto 0);
+        --RS422
         i_RS422_Rx : in  STD_LOGIC;
         o_RS422_Tx : out STD_LOGIC;
+        --RGB
         RGB0_Red   : out STD_LOGIC;
         RGB0_Green : out STD_LOGIC;
-        RGB0_Blue  : out STD_LOGIC
+        RGB0_Blue  : out STD_LOGIC;
+        --adc
+        o_sck      : out std_logic;
+        o_cnv      : out std_logic;
+        i_sdo      : in  std_logic
     );
 end ad7982_cmodA7_35;
 
@@ -90,20 +97,19 @@ architecture Behavioral of ad7982_cmodA7_35 is
     signal UART_Tx_Din       : std_logic_vector(7 downto 0);
     signal Baud_Cnt_Offset   : signed(5 downto 0);
 
-
-
-    
-    signal rst             : std_logic;
-    signal CLK66           : STD_LOGIC;
+    signal rst      : std_logic;
+    signal CLK66    : STD_LOGIC;
     --fifo in
-    signal din : STD_LOGIC_VECTOR ( 15 downto 0 );
-    signal wr_en : STD_LOGIC;
-    signal full : STD_LOGIC;
+    signal din      : STD_LOGIC_VECTOR(15 downto 0);
+    signal wr_en    : STD_LOGIC;
+    signal full     : STD_LOGIC;
     --fifo out
-    signal rd_en : std_logic;
-    signal dout : std_logic_vector(15 downto 0);
-    signal empty : std_logic;
-    signal valid : std_logic;
+    signal rd_en    : std_logic;
+    signal dout     : std_logic_vector(15 downto 0);
+    signal empty    : std_logic;
+    signal valid    : std_logic;
+    signal data_rx  : std_logic_vector(17 downto 0);
+    signal ready_rx : std_logic;
 
 begin
 
@@ -117,8 +123,6 @@ begin
             clk_out2 => CLK66,
             reset    => '0',
             clk_in1  => CLK
-            
-            
         );
 
     ----------------------------------------------------------
@@ -231,9 +235,14 @@ begin
         port map(
             clk            => CLK66,
             rst            => rst,
+            -- fifo
             o_din          => din,
             o_wr_en        => wr_en,
-            i_UART_Rx_Dout => UART_Rx_Dout
+            -- ila
+            i_UART_Rx_Dout => UART_Rx_Dout,
+            -- adc interface
+            i_data_rx      => data_rx,
+            i_ready_rx     => ready_rx
         );
 
     --------------------------------------------------
@@ -250,6 +259,23 @@ begin
             o_UART_Tx_Din       => UART_Tx_Din,
             o_UART_Tx_Send_Data => UART_Tx_Send_Data,
             i_UART_Tx_Busy      => UART_Tx_Busy
+        );
+
+    --------------------------------------------------
+    -- adc driver
+    --------------------------------------------------
+    inst_adc_driver_Rx_fe : entity work.Rx_fe
+        port map(
+            --global
+            clk        => CLK66,
+            rst        => rst,
+            --adc
+            o_sck      => o_sck,
+            o_cnv      => o_cnv,
+            i_sdo      => i_sdo,
+            --out adc driver
+            o_data_rx  => data_rx,
+            o_ready_rx => ready_rx
         );
 
 end Behavioral;

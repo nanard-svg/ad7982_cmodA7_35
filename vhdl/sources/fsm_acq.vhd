@@ -11,7 +11,11 @@ entity fsm_acq is
         o_din          : out std_logic_vector(15 downto 0);
         o_wr_en        : out std_logic;
         --rx uart
-        i_UART_Rx_Dout : in  std_logic_vector(7 downto 0)
+        i_UART_Rx_Dout : in  std_logic_vector(7 downto 0);
+        --adc
+        --out adc driver
+        i_data_rx      : in  std_logic_vector(17 downto 0);
+        i_ready_rx     : in  std_logic
     );
 end entity fsm_acq;
 
@@ -21,7 +25,8 @@ architecture RTL of fsm_acq is
     signal state                : state_type;
     signal i_UART_Rx_Dout_ff0   : std_logic_vector(7 downto 0);
     signal i_UART_Rx_Dout_ff1   : std_logic_vector(7 downto 0);
-    signal pattern_data         : signed(15 downto 0);
+    signal pattern_data         : std_logic_vector(15 downto 0);
+    signal i_data_rx_view       : std_logic_vector(17 downto 0);
     signal pattern_data_counter : unsigned(15 downto 0);
     signal compter_delay        : unsigned(15 downto 0);
     signal i_UART_Rx_Dout_ff2   : std_logic_vector(7 downto 0);
@@ -34,12 +39,13 @@ begin
             state <= wait_start;
 
             o_wr_en              <= '0';
-            pattern_data         <= To_signed(16384, 16);
+            pattern_data         <= (others => '0');
             compter_delay        <= (others => '0');
             i_UART_Rx_Dout_ff0   <= x"30";
             i_UART_Rx_Dout_ff1   <= x"30";
             i_UART_Rx_Dout_ff2   <= x"30";
             pattern_data_counter <= (others => '0');
+            i_data_rx_view       <= (others => '0');
 
         elsif rising_edge(clk) then
 
@@ -59,24 +65,23 @@ begin
 
                 when write_fifo =>
 
-                    pattern_data         <= pattern_data + 1;
-                    pattern_data_counter <= pattern_data_counter + 1;
-                    o_wr_en              <= '1';
-                    state                <= wait_delay;
+                    if i_ready_rx = '1' then
+                        pattern_data   <= i_data_rx(17 downto 2);
+                        i_data_rx_view <= i_data_rx;
+
+                        pattern_data_counter <= pattern_data_counter + 1;
+                        o_wr_en              <= '1';
+                        state                <= wait_delay;
+                    end if;
 
                 when wait_delay =>
-
-                    compter_delay <= compter_delay + 1;
 
                     if To_integer(pattern_data_counter) = 65500 then
                         state                <= wait_start;
                         pattern_data_counter <= (others => '0');
                         compter_delay        <= (others => '0');
                     else
-                        if To_integer(compter_delay) = 66 then
-                            state         <= write_fifo;
-                            compter_delay <= (others => '0');
-                        end if;
+                        state <= write_fifo;
                     end if;
 
             end case;
@@ -84,6 +89,6 @@ begin
         end if;
     end process;
 
-    o_din <= std_logic_vector(pattern_data);
+    o_din <= pattern_data;
 
 end architecture RTL;
