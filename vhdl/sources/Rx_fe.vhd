@@ -19,7 +19,7 @@ end entity Rx_fe;
 
 architecture RTL of Rx_fe is
 
-    type state_type is (reset_state, conversion_state, acquisition_state, end_state, inter_S_state);
+    type state_type is (reset_state, conversion_state, acquisition_state, end_state);
     signal state : state_type;
 
     signal count        : unsigned(9 downto 0);
@@ -51,11 +51,12 @@ begin
                 when conversion_state =>
 
                     o_cnv_signal <= '1';
-                    enable_sck   <= '1';
+                    enable_sck   <= '0';
                     count        <= count + 1;
 
-                    if To_integer(count) = 32 then -- 640 = 20ns(50MHz)*32
+                    if To_integer(count) = 46 then -- 700 = 15ns(66MHz)*46
                         o_cnv_signal <= '0';
+                        enable_sck   <= '1';
                         count        <= (others => '0');
                         state        <= acquisition_state;
                     end if;
@@ -77,11 +78,6 @@ begin
 
                     o_cnv_signal <= '0';
                     o_ready_rx   <= '0';
-                    state        <= inter_S_state;
-
-                when inter_S_state =>
-
-                    o_cnv_signal <= '0';
                     state        <= conversion_state;
 
             end case;
@@ -90,14 +86,14 @@ begin
     end process;
 
     o_cnv <= o_cnv_signal;
-    o_sck <= not clk when (o_cnv_signal = '0' and enable_sck = '1') else '0';
+    o_sck <= clk when (o_cnv_signal = '0' and enable_sck = '1') else '0';
 
     process(clk, rst) is
     begin
         if rst = '1' then
-            --o_data_rx <= (others => '0');
+            o_data_rx <= (others => '0');
 
-        elsif rising_edge(clk) then
+        elsif falling_edge(clk) then
 
             if (o_cnv_signal = '0' and enable_sck = '1') then
                 o_data_rx <= o_data_rx(16 downto 0) & i_sdo;

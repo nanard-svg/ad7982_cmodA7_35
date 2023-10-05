@@ -37,7 +37,7 @@ begin
 
             o_sdo <= '0';
 
-            --wait until falling_edge(i_cnv); --  conversion ended
+            wait until falling_edge(i_cnv); --  conversion ended
 
             pattern_data_counter_save <= pattern_data_counter;
 
@@ -51,6 +51,9 @@ begin
                 wait until falling_edge(i_sck);
                 
                 SPI_Bit_Number_cnt <= SPI_Bit_Number_cnt - "1";
+                
+                wait for 1 ns;
+                
                 pattern_data_counter <= pattern_data_counter(16 downto 0)&'0';
 
             end loop Conversion;
@@ -58,6 +61,7 @@ begin
             pattern_data_counter <= pattern_data_counter_save + 1;
             wait for 20 ns;
             o_sdo                <= '0';
+            wait for 1 ns;
             SPI_Bit_Number_cnt   <= b"10010";
 
         end loop;
