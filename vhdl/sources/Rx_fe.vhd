@@ -54,7 +54,7 @@ begin
                     enable_sck   <= '0';
                     count        <= count + 1;
 
-                    if To_integer(count) = 46 then -- 700 = 15ns(66MHz)*46
+                    if To_integer(count) = 43 then -- 700 = 15ns(66MHz)*46
                         o_cnv_signal <= '0';
                         enable_sck   <= '1';
                         count        <= (others => '0');

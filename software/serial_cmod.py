@@ -7,6 +7,7 @@ import numpy as np
 
 toggle = 0
 decimal_list=[]
+res_twos_complement_list=[]
 msb_list=[]
 lsb_list=[]
 counter=0
@@ -62,6 +63,7 @@ for y in range(131000):
             msb_list.append(msb)
             lsb_list.append(lsb)
 
+print("Mean of res_twos_complement is ", np.mean(decimal_list))
 plt.plot(decimal_list)
 plt.show()
 
