@@ -33,12 +33,12 @@ begin
 
         while True loop
 
-            wait until rising_edge(i_cnv); --  init a conversion
+            --wait until rising_edge(i_cnv); --  init a conversion
 
             o_sdo <= '0';
-
-            wait until falling_edge(i_cnv); --  conversion ended
-
+            
+            wait until falling_edge(i_cnv); --  init a conversion
+            
             pattern_data_counter_save <= pattern_data_counter;
 
             Conversion : while SPI_Bit_Number_cnt > b"00000" loop
@@ -58,11 +58,13 @@ begin
 
             end loop Conversion;
 
+            wait for 1 ns;
             pattern_data_counter <= pattern_data_counter_save + 1;
             wait for 20 ns;
             o_sdo                <= '0';
             wait for 1 ns;
             SPI_Bit_Number_cnt   <= b"10010";
+            wait for 1 ns;
 
         end loop;
     end process AD7982_Emulators_SPI_Protocol;

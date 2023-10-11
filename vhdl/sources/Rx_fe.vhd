@@ -19,7 +19,7 @@ end entity Rx_fe;
 
 architecture RTL of Rx_fe is
 
-    type state_type is (reset_state, conversion_state, acquisition_state, end_state);
+    type state_type is (reset_state, conversion_state, acquisition_state);
     signal state : state_type;
 
     signal count        : unsigned(9 downto 0);
@@ -52,9 +52,10 @@ begin
 
                     o_cnv_signal <= '1';
                     enable_sck   <= '0';
+                    o_ready_rx   <= '0';
                     count        <= count + 1;
 
-                    if To_integer(count) = 43 then -- 700 = 15ns(66MHz)*46
+                    if To_integer(count) = 42 then -- 700 = 15ns(66MHz)*46
                         o_cnv_signal <= '0';
                         enable_sck   <= '1';
                         count        <= (others => '0');
@@ -71,14 +72,8 @@ begin
                         enable_sck   <= '0';
                         o_ready_rx   <= '1';
                         count        <= (others => '0');
-                        state        <= end_state;
+                        state        <= conversion_state;
                     end if;
-
-                when end_state =>
-
-                    o_cnv_signal <= '0';
-                    o_ready_rx   <= '0';
-                    state        <= conversion_state;
 
             end case;
 
