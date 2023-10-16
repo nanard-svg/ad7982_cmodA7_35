@@ -38,7 +38,7 @@ begin
             enable_sck   <= '0';
             o_ready_rx   <= '0';
 
-        elsif falling_edge(clk) then
+        elsif rising_edge(clk) then
             case state is
 
                 when reset_state =>
@@ -55,7 +55,7 @@ begin
                     o_ready_rx   <= '0';
                     count        <= count + 1;
 
-                    if To_integer(count) = 42 then -- 700 = 15ns(66MHz)*46
+                    if To_integer(count) = 43 then -- 700 = 15ns(66MHz)*46
                         o_cnv_signal <= '0';
                         enable_sck   <= '1';
                         count        <= (others => '0');
@@ -81,14 +81,14 @@ begin
     end process;
 
     o_cnv <= o_cnv_signal;
-    o_sck <= clk when (o_cnv_signal = '0' and enable_sck = '1') else '0';
+    o_sck <= not clk when (o_cnv_signal = '0' and enable_sck = '1') else '0';
 
     process(clk, rst) is
     begin
         if rst = '1' then
             o_data_rx <= (others => '0');
 
-        elsif falling_edge(clk) then
+        elsif rising_edge(clk) then
 
             if (o_cnv_signal = '0' and enable_sck = '1') then
                 o_data_rx <= o_data_rx(16 downto 0) & i_sdo;

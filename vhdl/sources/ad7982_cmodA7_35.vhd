@@ -34,7 +34,8 @@ entity ad7982_cmodA7_35 is
         --adc
         o_sck      : out std_logic;
         o_cnv      : out std_logic;
-        i_sdo      : in  std_logic
+        i_sdo      : in  std_logic;
+        view_wr_en : out STD_LOGIC
     );
 end ad7982_cmodA7_35;
 
@@ -244,6 +245,8 @@ begin
             i_data_rx      => data_rx,
             i_ready_rx     => ready_rx
         );
+
+    view_wr_en <= wr_en;
 
     --------------------------------------------------
     -- fsm tx

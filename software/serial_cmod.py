@@ -64,6 +64,8 @@ for y in range(131000):
             lsb_list.append(lsb)
 
 print("Mean of res_twos_complement is ", np.mean(decimal_list))
+print("min",min(decimal_list))
+print("max",max(decimal_list))
 plt.plot(decimal_list)
 plt.show()
 
