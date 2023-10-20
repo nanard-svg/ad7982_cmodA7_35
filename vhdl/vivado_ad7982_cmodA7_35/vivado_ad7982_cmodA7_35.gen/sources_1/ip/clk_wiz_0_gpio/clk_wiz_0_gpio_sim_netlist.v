@@ -1,10 +1,10 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2022.2 (win64) Build 3671981 Fri Oct 14 05:00:03 MDT 2022
-// Date        : Thu Oct  5 09:53:16 2023
-// Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
+// Date        : Tue Oct 17 17:34:21 2023
+// Host        : DESKTOP-3HC2UMC running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
-//               c:/3u/ad7982_cmodA7_35/vhdl/vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.gen/sources_1/ip/clk_wiz_0_gpio/clk_wiz_0_gpio_sim_netlist.v
+//               c:/3UT/ad7982_cmodA7_35/vhdl/vivado_ad7982_cmodA7_35/vivado_ad7982_cmodA7_35.gen/sources_1/ip/clk_wiz_0_gpio/clk_wiz_0_gpio_sim_netlist.v
 // Design      : clk_wiz_0_gpio
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.

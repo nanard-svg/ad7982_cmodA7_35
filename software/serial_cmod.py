@@ -23,7 +23,7 @@ def twos_complement(val, nbits):
             val = val - (1 << nbits)
     return val
 
-ser = serial.Serial (port="COM10", baudrate=115200,
+ser = serial.Serial (port="COM5", baudrate=115200,
                       bytesize=serial.EIGHTBITS, parity=serial.PARITY_ODD,
                       stopbits=serial.STOPBITS_ONE,
                       timeout=None,
