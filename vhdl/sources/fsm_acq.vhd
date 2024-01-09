@@ -14,7 +14,7 @@ entity fsm_acq is
         i_UART_Rx_Dout : in  std_logic_vector(7 downto 0);
         --adc
         --out adc driver
-        i_data_rx      : in  std_logic_vector(17 downto 0);
+        i_data_rx      : in  std_logic_vector(15 downto 0);
         i_ready_rx     : in  std_logic
     );
 end entity fsm_acq;
@@ -26,7 +26,7 @@ architecture RTL of fsm_acq is
     signal i_UART_Rx_Dout_ff0   : std_logic_vector(7 downto 0);
     signal i_UART_Rx_Dout_ff1   : std_logic_vector(7 downto 0);
     signal pattern_data         : std_logic_vector(15 downto 0);
-    signal i_data_rx_view       : std_logic_vector(17 downto 0);
+
     signal pattern_data_counter : unsigned(15 downto 0);
     signal compter_delay        : unsigned(15 downto 0);
     signal i_UART_Rx_Dout_ff2   : std_logic_vector(7 downto 0);
@@ -45,7 +45,7 @@ begin
             i_UART_Rx_Dout_ff1   <= x"30";
             i_UART_Rx_Dout_ff2   <= x"30";
             pattern_data_counter <= (others => '0');
-            i_data_rx_view       <= (others => '0');
+            
 
         elsif rising_edge(clk) then
 
@@ -66,8 +66,8 @@ begin
                 when write_fifo =>
 
                     if i_ready_rx = '1' then
-                        pattern_data   <= i_data_rx(17 downto 2);
-                        i_data_rx_view <= i_data_rx;
+                        pattern_data   <= i_data_rx;
+                        
 
                         pattern_data_counter <= pattern_data_counter + 1;
                         o_wr_en              <= '1';

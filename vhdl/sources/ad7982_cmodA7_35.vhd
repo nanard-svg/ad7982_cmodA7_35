@@ -1,4 +1,3 @@
-----------------------------------------------------------------------------
 --	ad7982_cmodA7_35.vhd -- 3Utransat UART Demonstration Project
 ----------------------------------------------------------------------------
 -- Author:  Bernard BERTRND
@@ -98,19 +97,23 @@ architecture Behavioral of ad7982_cmodA7_35 is
     signal UART_Tx_Din       : std_logic_vector(7 downto 0);
     signal Baud_Cnt_Offset   : signed(5 downto 0);
 
-    signal rst      : std_logic;
-    signal CLK66    : STD_LOGIC;
+    signal rst             : std_logic;
+    signal CLK66           : STD_LOGIC;
     --fifo in
-    signal din      : STD_LOGIC_VECTOR(15 downto 0);
-    signal wr_en    : STD_LOGIC;
-    signal full     : STD_LOGIC;
+    signal din             : STD_LOGIC_VECTOR(15 downto 0);
+    signal wr_en           : STD_LOGIC;
+    signal full            : STD_LOGIC;
     --fifo out
-    signal rd_en    : std_logic;
-    signal dout     : std_logic_vector(15 downto 0);
-    signal empty    : std_logic;
-    signal valid    : std_logic;
-    signal data_rx  : std_logic_vector(17 downto 0);
-    signal ready_rx : std_logic;
+    signal rd_en           : std_logic;
+    signal dout            : std_logic_vector(15 downto 0);
+    signal empty           : std_logic;
+    signal valid           : std_logic;
+    signal data_rx         : std_logic_vector(17 downto 0);
+    signal ready_rx        : std_logic;
+    signal data_rx_keeped  : std_logic_vector(17 downto 0);
+    signal ready_rx_keeped : std_logic;
+    signal data : signed(15 downto 0);
+    signal ready : std_logic;
 
 begin
 
@@ -216,7 +219,7 @@ begin
     inst_fifo : entity work.fifo
         port map(
             rst         => rst,
-            wr_clk      => CLK66,
+            wr_clk      => CLK25,
             rd_clk      => CLK25,
             din         => din,
             wr_en       => wr_en,
@@ -234,7 +237,7 @@ begin
     --------------------------------------------------
     inst_fsm_acq : entity work.fsm_acq
         port map(
-            clk            => CLK66,
+            clk            => CLK25,
             rst            => rst,
             -- fifo
             o_din          => din,
@@ -242,8 +245,8 @@ begin
             -- ila
             i_UART_Rx_Dout => UART_Rx_Dout,
             -- adc interface
-            i_data_rx      => data_rx,
-            i_ready_rx     => ready_rx
+            i_data_rx      => std_logic_vector(data),
+            i_ready_rx     => ready
         );
 
     view_wr_en <= wr_en;
@@ -279,6 +282,43 @@ begin
             --out adc driver
             o_data_rx  => data_rx,
             o_ready_rx => ready_rx
+        );
+
+    ------------------------------------------
+    --  keep data from ADC to CDC
+    ------------------------------------------ 
+
+    label_keep_data_from_ADC : process(CLK66, rst) is
+    begin
+        if rst = '1' then
+            data_rx_keeped  <= (others => '0');
+            ready_rx_keeped <= '0';
+        elsif rising_edge(CLK66) then
+            if ready_rx = '1' then
+                ready_rx_keeped <= '1';
+                data_rx_keeped  <= data_rx;
+            else
+                ready_rx_keeped <= '0';
+            end if;
+        end if;
+    end process;
+
+    ------------------------------------------
+    --  CDC after Injection
+    ------------------------------------------
+
+    label_cdc : entity work.Fast_to_Slow_CDC_lite
+        port map(
+            --global
+            i_reset    => rst,
+            i_clk_fast => CLK66,
+            i_clk_slow => CLK25,
+            --ready
+            i_ready    => ready_rx_keeped,
+            o_ready    => ready,        --ready_slow,
+            --data science
+            i_data     => signed(data_rx_keeped(17 downto 2)),
+            o_data     => data          --data_slow
         );
 
 end Behavioral;
